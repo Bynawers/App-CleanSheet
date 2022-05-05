@@ -1,60 +1,151 @@
-import React, { useState, useRef } from 'react';
-import { StyleSheet, Text, View , ScrollView, TouchableOpacity, Animated, Modal, TouchableWithoutFeedback} from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View , Button, TouchableOpacity, Modal, TouchableWithoutFeedback, Image, FlatList, Picker, Dimensions } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import Slider from '@react-native-community/slider';
 
 import Header from '../shared/Header.js';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
-function CleanSheet() {
+function CleanSheet({navigation}) {
+
+  const image = {
+    langage: {
+      javascript: require('../../assets/langage/javaScript.png'),
+      css: require('../../assets/langage/css.png'),
+      html: require('../../assets/langage/html.png'),
+      reactnative: require('../../assets/langage/react-native.jpg'),
+      c: require('../../assets/langage/C.png'),
+      cplus: require('../../assets/langage/c-plus.png'),
+      csharp: require('../../assets/langage/c-sharp.png'),
+      python: require('../../assets/langage/python.png'),
+      rust: require('../../assets/langage/rust.png'),
+      shell: require('../../assets/langage/terminal.png'),
+      java: require('../../assets/langage/java.png'),
+      r: require('../../assets/langage/R.png'),
+      git: require('../../assets/langage/git.png'),
+      typescript: require('../../assets/langage/typescript.png'),
+      redux: require('../../assets/langage/redux.png'),
+      angular: require('../../assets/langage/angular.png'),
+      node: require('../../assets/langage/node.png'),
+      json: require('../../assets/langage/json.png')
+    }
+  }
+
+  const [selectedParadigme, setSelectedParadigme] = useState("none");
+  const [selectedValue, setSelectedValue] = useState("none");
+  const [selectedYears, setSelectedYears] = useState(-1);
+
+  const [leaveOpenFilter, setLeaveOpenFilter] = useState(false);
+
+  const numberOfColumn = 4;
 
   const [visible, setVisible] = useState(false);
-  const bounceValue = useRef(new Animated.Value(0)).current;
 
-  const toggleFilter = () => {    
-    
-    let toValue = 10;
-
-    if (visible) {
-      toValue = 0;
-    }
-    Animated.spring(bounceValue, {
-        toValue: toValue,
-        velocity: 3,
-        tension: 2,
-        friction: 8,
-        useNativeDriver: true,
-      }
-    ).start();
+  const toggleVisible = () => {
     setVisible(!visible);
+    console.log(visible);
   }
+
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("focus :"+visible);
+      /*
+      const routes = navigation.getState()?.routes;
+      console.log(routes[routes.length - 1]);*/
+      if (visible) {
+        setVisible(true);
+        setLeaveOpenFilter(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+  const dataLangage = require("../data/Langage.json");
 
   return (
     <View style={styles.container}>
-      <Header name='Clean Sheet'/>
+      <Header navigation={navigation} name='Clean Sheet'/>
 
-      <ScrollView style={styles.scrollContainer}>
+      <View style={styles.scrollContainer}>
 
         <View style={styles.lineContainer}>
           <View style={{flexDirection: 'row'}}>
             <View style={{flex:1}}/>
             <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-              <Text>Back hand</Text>
+              <Text>Langage</Text>
             </View>
-            <TouchableOpacity style={{flex:1, justifyContent: 'center', alignItems: 'center'}}
-            onPress={() =>setVisible(!visible)}>
-              <Ionicons name='filter-outline' color='black' size={30} />
+            <TouchableOpacity style={{flex:1, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}
+            onPress={() => {setVisible(!visible); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);}}>
+              <Ionicons name='filter-outline' color='black' size={30}/>
+              <View style={{right: 10, bottom: 7}}>
+                <FontAwesome name='circle' color='#32ade6' size={10} 
+                style={{opacity: (selectedParadigme === 'none' && selectedValue === 'none' && selectedYears === -1) ? 0 : 1}}/>
+              </View>
+              
             </TouchableOpacity>
-
           </View>
           <View style={styles.line}/>
         </View>
 
-      </ScrollView>
-      <FilterOverlay bounceValue={bounceValue} visible={visible} setVisible={setVisible} toggleFilter={toggleFilter}/>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+          
+          <FlatList
+          data={dataLangage.Langage.filter(item => selectedValue === item.type || item.paradigme.includes(selectedParadigme) || selectedParadigme === selectedValue && selectedYears === -1 || selectedYears > item.years )}
+          numColumns={numberOfColumn}
+          contentContainerStyle={{alignSelf: 'flex-start'}}
+          renderItem={({item, index}) => <Langage color={item.color} name={item.name.toLowerCase()} navigation={navigation} numberOfColumn={numberOfColumn} image={image}/>}
+          keyExtractor={(item, index) => index.toString()}
+          />
+        </View>
+
+        <TouchableOpacity style={{alignSelf: 'center', marginTop: 20}}>
+          <Ionicons name='md-add-outline' color='black' size={35}/>
+        </TouchableOpacity>
+
+      </View>
+      <FilterOverlay 
+      visible={visible} setVisible={setVisible} 
+      selectedParadigme={selectedParadigme} setSelectedParadigme={setSelectedParadigme} 
+      selectedValue={selectedValue} setSelectedValue={setSelectedValue} 
+      selectedYears={selectedYears} setSelectedYears={setSelectedYears}
+      navigation={navigation}
+      image={image}
+      toggleVisible={toggleVisible}
+      setLeaveOpenFilter={setLeaveOpenFilter}
+      />
     </View>
   );
 }
 
 const FilterOverlay = (props) => {
+
+  const [selectedType, setSelectedType] = useState("Type");
+
+  const [selectedParadigmeTemp, setSelectedParadigmeTemp] = useState("none");
+  const [selectedValueTemp, setSelectedValueTemp] = useState("none");
+  const [selectedYearsTemp, setSelectedYearsTemp] = useState(-1);
+
+  let isInitiateValues = false;
+
+  const toggleSetFilter = () => {
+  
+    props.setSelectedYears(selectedYearsTemp)
+    props.setSelectedParadigme(selectedParadigmeTemp)
+    props.setSelectedValue(selectedValueTemp)
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }
+
+  const initiateValues = () => {
+    if (isInitiateValues) {
+      setSelectedParadigmeTemp(props.selectedParadigme);
+      setSelectedYearsTemp(props.selectedYears);
+      setSelectedValueTemp(props.selectedValue);
+      isInitiateValues = true;
+    }
+  }
+  initiateValues();
 
   return (
     <Modal
@@ -69,21 +160,111 @@ const FilterOverlay = (props) => {
 
       <View style={styles.filterContent}>
         <View style={styles.filterTopContent}>
-          <View style={{ flex: 1 }}/>
-
-          <Text style={styles.text}>Filtrer</Text>
-          <View style={{ flex: 1, alignItems: 'flex-end'}}>
-            <TouchableOpacity style={{right: '10%'}}
+          <TouchableOpacity style={{left: '15%', flex: 1}}
             onPress={() => props.setVisible(!props.visible)}>
               <Ionicons name='close-outline' color='black' size={40}/>
             </TouchableOpacity>
+          <Text style={styles.text}>Filtrer</Text>
+          <View style={{ flex: 1, alignItems: 'flex-end'}}>
+            <View style={{ flex: 1, justifyContent: 'center', marginRight: '15%'}}>
+              <Button onPress={() => toggleSetFilter()} title="Apply"/>
+            </View>
           </View>
         </View>
+
         <View style={styles.separation}/>
+
+        <View style={{alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
+          <SelectType name='Type' selectedType={selectedType} setSelectedType={setSelectedType}/>
+          <SelectType name='Paradigme' selectedType={selectedType} setSelectedType={setSelectedType}/>
+          <SelectType name='Years' selectedType={selectedType} setSelectedType={setSelectedType}/>
+          <SelectType name='Favorite' selectedType={selectedType} setSelectedType={setSelectedType}/>
+        </View>
+
+        <View style={{width: '100%',top: '0%'}}>
+          <View style={{width: '100%'}}>
+          {selectedType === 'Type' &&
+          <Picker
+          selectedValue={selectedValueTemp}
+          style={{ height: 0, width: '100%' }}
+          onValueChange={(itemValue, itemIndex) => setSelectedValueTemp(itemValue)}>
+            <Picker.Item label="None" value="none" />
+            <Picker.Item label="BackHand" value="BackHand" />
+            <Picker.Item label="FrontHand" value="FrontHand"/>
+            <Picker.Item label="FullStack" value="FullStack" />
+          </Picker>}
+
+          {selectedType === 'Paradigme' &&
+          <Picker
+          selectedValue={selectedParadigmeTemp}
+          style={{ height: 0, width: '100%' }}
+          onValueChange={(itemValue, itemIndex) => setSelectedParadigmeTemp(itemValue)}>
+            <Picker.Item label="None" value="none" />
+            <Picker.Item label="Orienté Objet" value="objet" />
+            <Picker.Item label="Structurée" value="structuree"/>
+            <Picker.Item label="Procédurale" value="procedural"/>
+            <Picker.Item label="Fonctionnel" value="fonctionnel"/>
+            <Picker.Item label="Impératif" value="imperatif"/>
+            <Picker.Item label="Declarative" value="declarative"/>
+          </Picker>}
+
+          {selectedType === 'Years' &&
+          <View style={{alignSelf: 'center', alignItems: 'center', marginTop: '10%'}}>
+            <Text>{selectedYearsTemp === -1 ? "No value" : selectedYearsTemp}</Text>
+            <Slider
+            style={{width: 200, height: 40}}
+            minimumValue={1990}
+            maximumValue={2022}
+            value={props.selectedYears}
+            onValueChange={(value) => setSelectedYearsTemp(parseInt(value))}
+            minimumTrackTintColor="#242426"
+            maximumTrackTintColor="white"
+            />
+            <Button
+            onPress={() => setSelectedYearsTemp(-1)}
+            title="Reset"
+            />
+          </View>}
+
+          {selectedType === 'Favorite' &&
+          <TouchableOpacity style={styles.buttonAdd}
+          onPress={() => {
+          props.navigation.push('FavoriteStack', {image: props.image, setVisible: props.setVisible, toggleVisible: props.toggleVisible}); 
+          props.toggleVisible();
+          props.setLeaveOpenFilter(true);
+          }}>
+            <Ionicons name='md-add-outline' color='black' size={35}/>
+          </TouchableOpacity>}
+
+          </View>
+
+        </View>
 
       </View>
 
     </Modal>
+  );
+}
+
+const SelectType = (props) => {
+
+  return(
+    <TouchableOpacity style={[styles.filterType, {backgroundColor: props.selectedType === props.name ? '#242426' : '#C6C6C6'}]}
+    onPress={() => props.setSelectedType(props.name)}>
+      <Text style={styles.whiteText}>{props.name}</Text>
+    </TouchableOpacity>
+  );
+}
+
+const Langage = (props) => {
+
+  let edgeSize = Dimensions.get('window').width/props.numberOfColumn;
+
+  return(
+    <TouchableOpacity style={[styles.langageContainer, {backgroundColor: props.color, height: edgeSize, width: edgeSize}]}
+    onPress={() => props.navigation.push('WebStack', {name: props.name})}>
+      <Image style={{ width: '90%', flex: 1}} source={props.image.langage[props.name]}/>
+    </TouchableOpacity>
   );
 }
 
@@ -129,13 +310,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center',
     flexDirection: 'row',
-    flex: .15,
+    height: '14%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
   },
   text: {
     fontSize: 20,
     color: 'black'
+  },
+  whiteText: {
+    fontSize: 15,
+    color: 'white'
+  },
+  langageContainer: {
+    alignItems: 'center',
+    height: 100,
+    width: 100, 
+  },
+  filterType: {
+    backgroundColor: '#242426',
+    height: 35,
+    width: '20%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  addFilterButton: {
+    backgroundColor: '#242426',
+    height: 35,
+    width: '20%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    marginRight: 10,
+  },
+  buttonAdd: {
+    alignSelf: 'center', 
+    marginTop: '20%', 
+    backgroundColor: '#E3E3E3',
+    borderRadius: 10,
+    padding: 5
   }
 });
 

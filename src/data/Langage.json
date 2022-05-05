@@ -1,0 +1,201 @@
+{
+  "Langage": [
+    {
+      "name": "JavaScript",
+      "type": "BackHand",
+      "favorite": true,
+      "color": "#f7df1e",
+      "paradigme": [
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 1995
+    },
+    {
+      "name": "Css",
+      "type": "FrontHand",
+      "favorite": false,
+      "color": "#1f61a1",
+      "paradigme": [
+        "structuree"
+      ],
+      "years": 1996
+    },
+    {
+      "name": "Html",
+      "type": "FrontHand",
+      "favorite": false,
+      "color": "#e34f26",
+      "paradigme": [
+        "structuree"
+      ],
+      "years": 1993
+    },
+    {
+      "name": "ReactNative",
+      "type": "FrontHand&BackHand",
+      "favorite": true,
+      "color": "#04a5cf",
+      "paradigme": [
+        "declarative"
+      ],
+      "years": 2015
+    },
+    {
+      "name": "C",
+      "type": "BackHand",
+      "favorite": true,
+      "color": "#283593",
+      "paradigme": [
+        "procedural",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 1972
+    },
+    {
+      "name": "Cplus",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#00549d",
+      "paradigme": [
+        "procedural",
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 1983
+    },
+    {
+      "name": "Csharp",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#a178db",
+      "paradigme": [
+        "procedural",
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 2000
+    },
+    {
+      "name": "Python",
+      "type": "BackHand",
+      "favorite": true,
+      "color": "#E8E8E8",
+      "paradigme": [
+        "procedural",
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 1991
+    },
+    {
+      "name": "Rust",
+      "type": "BackHand",
+      "favorite": true,
+      "color": "black",
+      "paradigme": [
+        "structuree",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 2006
+    },
+    {
+      "name": "Shell",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#1f1f1f",
+      "paradigme": [
+      ],
+      "years": 1971
+    },
+    {
+      "name": "Java",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#ea2d2f",
+      "paradigme": [
+        "objet"
+      ],
+      "years": 1995
+    },
+    {
+      "name": "R",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#63aaed",
+      "paradigme": [
+        "objet",
+        "fonctionnel"
+      ],
+      "years": 1993
+    },
+    {
+      "name": "git",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#E8E8E8",
+      "paradigme": [
+      ],
+      "years": 2005
+    },
+    {
+      "name": "TypeScript",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#007acc",
+      "paradigme": [
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 2012
+    },
+    {
+      "name": "Redux",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#582f9e",
+      "paradigme": [
+      ],
+      "years": 2015
+    },
+    {
+      "name": "Angular",
+      "type": "BackHand&FrontHand",
+      "favorite": false,
+      "color": "#e23337",
+      "paradigme": [
+        "imperatif"
+      ],
+      "years": 2016
+    },
+    {
+      "name": "Node",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#5c9b00",
+      "paradigme": [
+        "objet",
+        "imperatif",
+        "fonctionnel"
+      ],
+      "years": 2009
+    },
+    {
+      "name": "Json",
+      "type": "BackHand",
+      "favorite": false,
+      "color": "#9777a8",
+      "paradigme": [
+        "structuree"
+      ],
+      "years": 2002
+    }
+  ]
+}

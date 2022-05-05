@@ -6,9 +6,7 @@ export default function CodeExample() {
     <View style={styles.container}>
       <Header name='Code Example'/>
       <ScrollView style={styles.container}>
-        <View style={{backgroundColor: 'red', justifyContent: 'center', alignItems: 'center'}}>
-          <Text>fqsdfqsdf</Text>
-        </View>
+        
       </ScrollView>
     </View>
   );

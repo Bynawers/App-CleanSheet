@@ -1,11 +1,14 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from '@react-navigation/stack';
+import { NavigationContainer } from '@react-navigation/native';
 
-import CleanSheet from '../views/CleanSheet.js';
-import CodeExample from '../views/CodeExample';
-import Knowledge from '../views/Knowledge.js';
+import { CleanSheetStackNavigator, CodeExampleStackNavigator, KnowledgeStackNavigator } from "./StackNavigation";
 
+import Web from '../views/Web.js';
+
+const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MyTabs() {
@@ -32,38 +35,42 @@ function MyTabs() {
         },
         headerTintColor: '#F6F6F6',
         headerShown: false,
-        headerStyle: {
-            backgroundColor: '#F6F6F6',
-            borderBottomWidth: 0,
-            elevation: 0, 
-  	        shadowOpacity: 0,
-          },
         tabBarActiveTintColor: '#151514',
         tabBarInactiveTintColor: '#151514',
-        tabBarShowLabel: false,
+        tabBarShowLabel: true,
         tabBarStyle: { 
           backgroundColor: '#F6F6F6',
           height: '11%',
           borderTopWidth: 0,
           position: 'absolute',
           overflow:'hidden',
-        },})}>
+        },
+        
+        })}>
 
       <Tab.Screen
         name="CleanSheet"
-        component={ CleanSheet }
+        component={ CleanSheetStackNavigator }
       />
        <Tab.Screen
         name="CodeExample"
-        component={ CodeExample }
+        component={ CodeExampleStackNavigator }
       />
       <Tab.Screen
         name="Knowledge"
-        component={ Knowledge }
+        component={ KnowledgeStackNavigator }
       />
     </Tab.Navigator>
   );
 }
 
-export default MyTabs;
+export default function Switch() {
+  return (
+      <Stack.Navigator
+      screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Home" component={ MyTabs } />
+        <Stack.Screen name="WebStack" component={ Web }/>
+      </Stack.Navigator>
+  );
+}
 
