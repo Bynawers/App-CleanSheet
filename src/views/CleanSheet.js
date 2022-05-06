@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View , Button, TouchableOpacity, Modal, TouchableWithoutFeedback, Image, FlatList, Picker, Dimensions } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View , Button, TouchableOpacity, Modal, TouchableWithoutFeedback, Image, FlatList, Dimensions } from 'react-native';
+import { Picker }  from '@react-native-picker/picker'
 import * as Haptics from 'expo-haptics';
 import Slider from '@react-native-community/slider';
 
@@ -7,6 +8,8 @@ import Header from '../shared/Header.js';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
 
 function CleanSheet({navigation}) {
+
+  const dataLangage = require("../data/Langage.json");
 
   const image = {
     langage: {
@@ -34,35 +37,23 @@ function CleanSheet({navigation}) {
   const [selectedParadigme, setSelectedParadigme] = useState("none");
   const [selectedValue, setSelectedValue] = useState("none");
   const [selectedYears, setSelectedYears] = useState(-1);
+  const favorite = useRef([]);
 
-  const [leaveOpenFilter, setLeaveOpenFilter] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const leaveOpenFilter = useRef(false);
 
   const numberOfColumn = 4;
 
-  const [visible, setVisible] = useState(false);
-
-  const toggleVisible = () => {
-    setVisible(!visible);
-    console.log(visible);
-  }
-
-
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log("focus :"+visible);
-      /*
-      const routes = navigation.getState()?.routes;
-      console.log(routes[routes.length - 1]);*/
-      if (visible) {
+
+      if (leaveOpenFilter.current) {
         setVisible(true);
-        setLeaveOpenFilter(false);
+        leaveOpenFilter.current = false;
       }
     });
-
     return unsubscribe;
   }, [navigation]);
-
-  const dataLangage = require("../data/Langage.json");
 
   return (
     <View style={styles.container}>
@@ -81,7 +72,7 @@ function CleanSheet({navigation}) {
               <Ionicons name='filter-outline' color='black' size={30}/>
               <View style={{right: 10, bottom: 7}}>
                 <FontAwesome name='circle' color='#32ade6' size={10} 
-                style={{opacity: (selectedParadigme === 'none' && selectedValue === 'none' && selectedYears === -1) ? 0 : 1}}/>
+                style={{opacity: (selectedParadigme === 'none' && selectedValue === 'none' && selectedYears === -1 && favorite.current.length === 0) ? 0 : 1}}/>
               </View>
               
             </TouchableOpacity>
@@ -92,17 +83,19 @@ function CleanSheet({navigation}) {
         <View style={{flexDirection: 'row', marginTop: 10}}>
           
           <FlatList
-          data={dataLangage.Langage.filter(item => selectedValue === item.type || item.paradigme.includes(selectedParadigme) || selectedParadigme === selectedValue && selectedYears === -1 || selectedYears > item.years )}
+          data={ dataLangage.Langage.filter( function(item) { 
+            if (selectedValue !== 'none' && selectedValue !== item.type) { return false; }
+            else if (selectedParadigme !== 'none' && !item.paradigme.includes(selectedParadigme)) { return false; }
+            else if (selectedYears !== -1 && selectedYears < item.years) { return false; }
+            else if (favorite.current.length !== 0 && !favorite.current.includes(item.name.toLowerCase())) { return false; }
+            else { return true; }
+          })}
           numColumns={numberOfColumn}
-          contentContainerStyle={{alignSelf: 'flex-start'}}
+          contentContainerStyle={{alignSelf: 'flex-start', paddingBottom: '50%'}}
           renderItem={({item, index}) => <Langage color={item.color} name={item.name.toLowerCase()} navigation={navigation} numberOfColumn={numberOfColumn} image={image}/>}
           keyExtractor={(item, index) => index.toString()}
           />
         </View>
-
-        <TouchableOpacity style={{alignSelf: 'center', marginTop: 20}}>
-          <Ionicons name='md-add-outline' color='black' size={35}/>
-        </TouchableOpacity>
 
       </View>
       <FilterOverlay 
@@ -112,8 +105,8 @@ function CleanSheet({navigation}) {
       selectedYears={selectedYears} setSelectedYears={setSelectedYears}
       navigation={navigation}
       image={image}
-      toggleVisible={toggleVisible}
-      setLeaveOpenFilter={setLeaveOpenFilter}
+      leaveOpenFilter={leaveOpenFilter}
+      favorite={favorite}
       />
     </View>
   );
@@ -127,8 +120,6 @@ const FilterOverlay = (props) => {
   const [selectedValueTemp, setSelectedValueTemp] = useState("none");
   const [selectedYearsTemp, setSelectedYearsTemp] = useState(-1);
 
-  let isInitiateValues = false;
-
   const toggleSetFilter = () => {
   
     props.setSelectedYears(selectedYearsTemp)
@@ -136,16 +127,6 @@ const FilterOverlay = (props) => {
     props.setSelectedValue(selectedValueTemp)
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   }
-
-  const initiateValues = () => {
-    if (isInitiateValues) {
-      setSelectedParadigmeTemp(props.selectedParadigme);
-      setSelectedYearsTemp(props.selectedYears);
-      setSelectedValueTemp(props.selectedValue);
-      isInitiateValues = true;
-    }
-  }
-  initiateValues();
 
   return (
     <Modal
@@ -175,10 +156,10 @@ const FilterOverlay = (props) => {
         <View style={styles.separation}/>
 
         <View style={{alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
-          <SelectType name='Type' selectedType={selectedType} setSelectedType={setSelectedType}/>
-          <SelectType name='Paradigme' selectedType={selectedType} setSelectedType={setSelectedType}/>
-          <SelectType name='Years' selectedType={selectedType} setSelectedType={setSelectedType}/>
-          <SelectType name='Favorite' selectedType={selectedType} setSelectedType={setSelectedType}/>
+          <SelectType name='Type' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedValue !== 'none')}/>
+          <SelectType name='Paradigme' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedParadigme !== 'none')}/>
+          <SelectType name='Years' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedYears !== -1)} />
+          <SelectType name='Favorite' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.favorite.current.length !== 0)} />
         </View>
 
         <View style={{width: '100%',top: '0%'}}>
@@ -227,14 +208,14 @@ const FilterOverlay = (props) => {
           </View>}
 
           {selectedType === 'Favorite' &&
-          <TouchableOpacity style={styles.buttonAdd}
-          onPress={() => {
-          props.navigation.push('FavoriteStack', {image: props.image, setVisible: props.setVisible, toggleVisible: props.toggleVisible}); 
-          props.toggleVisible();
-          props.setLeaveOpenFilter(true);
-          }}>
-            <Ionicons name='md-add-outline' color='black' size={35}/>
-          </TouchableOpacity>}
+            <TouchableOpacity style={styles.buttonAdd}
+            onPress={() => {
+              props.navigation.push('FavoriteStack', {image: props.image, favorite: props.favorite}); 
+              props.setVisible(false);
+              props.leaveOpenFilter.current = true;
+            }}>
+              <Ionicons name='md-add-outline' color='black' size={35}/>
+            </TouchableOpacity>}
 
           </View>
 
@@ -249,7 +230,8 @@ const FilterOverlay = (props) => {
 const SelectType = (props) => {
 
   return(
-    <TouchableOpacity style={[styles.filterType, {backgroundColor: props.selectedType === props.name ? '#242426' : '#C6C6C6'}]}
+    <TouchableOpacity style={[styles.filterType, 
+      {backgroundColor: props.hasValue && props.selectedType === props.name ? '#1e71f5' : props.hasValue ? '#81B1FF' : props.selectedType === props.name ? '#242426' : '#C6C6C6'}]}
     onPress={() => props.setSelectedType(props.name)}>
       <Text style={styles.whiteText}>{props.name}</Text>
     </TouchableOpacity>
@@ -348,6 +330,7 @@ const styles = StyleSheet.create({
   buttonAdd: {
     alignSelf: 'center', 
     marginTop: '20%', 
+    marginBottom: '10%',
     backgroundColor: '#E3E3E3',
     borderRadius: 10,
     padding: 5

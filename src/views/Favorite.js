@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View , TouchableOpacity, FlatList, Dimensions, Image, Button, BackHandler} from 'react-native';
+import { StyleSheet, View , TouchableOpacity, FlatList, Dimensions, Image, Button, BackHandler} from 'react-native';
 import Header from '../shared/Header.js';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function Favorite({ route, navigation, setVisible }) {
+export default function Favorite({route, navigation }) {
 
   const dataLangage = require("../data/Langage.json");
 
-  const { image, toggleVisible } = route.params;
+  const { image, favorite } = route.params;
 
-  const [getFavorite, setFavorite] = useState([]);
+  const [getFavorite, setFavorite] = useState(favorite.current);
 
   const handleBackButtonClick = () => {
+    favorite.current = getFavorite;
     navigation.navigate('CleanSheetStack');
     return true;
   }
@@ -23,11 +24,6 @@ export default function Favorite({ route, navigation, setVisible }) {
     };
   }, []);
 
-  const handleInputChange = React.useCallback(event => {
-    console.log('-----------------test----------')
-    setVisible(true)
-  }, [setVisible])
-
   return (
     <View style={styles.container}>
       <Header navigation={navigation} name='Favorite' backVisible={true}/>
@@ -38,7 +34,7 @@ export default function Favorite({ route, navigation, setVisible }) {
         contentContainerStyle={{alignSelf: 'flex-start'}}
         renderItem={({item, index}) => <Langage color={item.color} name={item.name.toLowerCase()} navigation={navigation} image={image} setFavorite={setFavorite} getFavorite={getFavorite}/>}
         keyExtractor={(item, index) => index.toString()}
-        ListFooterComponent={() => <ButtonApply toggleVisible={toggleVisible} handleBackButtonClick={handleBackButtonClick} handleInputChange={handleInputChange}/>}
+        ListFooterComponent={() => <ButtonApply handleBackButtonClick={handleBackButtonClick}/>}
         />
       </View>
       
@@ -57,7 +53,6 @@ const ButtonApply = (props) => {
   );
 }
 
-
 const Langage = (props) => {
 
   let nameL = props.name.toLowerCase();
@@ -73,7 +68,7 @@ const Langage = (props) => {
   return(
     <View style={{opacity: props.getFavorite.includes(nameL) ? 1 : .3}}>
       <TouchableOpacity style={[styles.langageContainer, {backgroundColor: props.color, height: edgeSize, width: edgeSize}]}
-      onPress={() => { toggleAddFavorite( nameL ); } }>
+      onPress={() => { toggleAddFavorite(nameL); } }>
         <View style={styles.star}>
           <Ionicons name={ props.getFavorite.includes(nameL) ? 'ios-checkmark-circle-sharp' : 'ios-checkmark-circle-outline'} color='white' size={30}/>
         </View> 
