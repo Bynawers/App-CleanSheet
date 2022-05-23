@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, BackHandler } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
+import styled from 'styled-components/native'
 
 const Header = (props) => {
 
