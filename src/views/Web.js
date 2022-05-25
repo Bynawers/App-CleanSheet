@@ -6,7 +6,7 @@ import Header from '../shared/Header.js'
 
 export default function Web({route, navigation}) {
 
-  const { name } = route.params;
+  const { name, https } = route.params;
 
   let html = '';
 
@@ -92,10 +92,11 @@ export default function Web({route, navigation}) {
       html = 'http://www.developer-cheatsheets.com/es6';
       break;
   }
+  console.log(https);
   return (
     <View style={styles.container}>
       <Header navigation={navigation} name='Web View' backVisible={true}/>
-      <WebView source={{uri: request.langage[name]}} style={{flex: 1}}/>
+      <WebView source={{uri: https}} style={{flex: 1}}/>
     </View>
   );
 }

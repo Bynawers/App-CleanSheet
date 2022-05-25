@@ -28,7 +28,7 @@ const CleanSheetStackNavigator = ({navigation}) => {
 const CodeExampleStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={screenOptionStyle}>
-      <Stack.Screen name="KnowledgeStack" component={CodeExample}/>
+      <Stack.Screen name="CodeStack" component={CodeExample}/>
     </Stack.Navigator>
   );
 }

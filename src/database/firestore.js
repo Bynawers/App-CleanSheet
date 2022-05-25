@@ -15,15 +15,56 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 const firestore = getFirestore();
-// **************************** //
 
+/*
 getDocCollection('Code')
 
 async function getDocCollection(request) {
+
+  let data = [];
+
   const dayTraining = await getDocs(collection(firestore, request));
+
   dayTraining.forEach((item) => {
-    console.log(item.id, " => ", item.data());
+    data.push({name: item.id, https: item.data().https});
   });
+  console.log(data)
+  return data;
+}*/
+
+// -------------------
+
+async function getCodeData(request) {
+
+  let data = [];
+  const dataCode = await getDocs(collection(firestore, request));
+
+  dataCode.forEach((item) => {
+
+    const request = "Code/"+item.id+"/Algo"
+    getDocCollection(request, item.id)
+    .then((response) => { 
+      if(Object.entries(response).length){ 
+        data.push({name: item.id, algo: response});
+        console.log(data)
+      }
+    })
+  });
+  return data;
+}
+
+async function getDocCollection(request) {
+
+  let data = [];
+
+  const dataRequest = await getDocs(collection(firestore, request));
+
+  dataRequest.forEach((item) => {
+
+    data.push({name: item.id, https: item.data().https});
+  });
+
+  return data;
 }
 
 /*
@@ -94,6 +135,6 @@ async function newExerciceSport(day, exo) {
 
 async function deleteTable(path, name) {
   await deleteDoc(doc(firestore, path, name));
-}
+}*/
 
-export default { getDocCollection }*/
+export default { getCodeData }
