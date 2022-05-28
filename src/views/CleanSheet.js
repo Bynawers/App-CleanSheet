@@ -57,7 +57,7 @@ function CleanSheet({navigation}) {
 
   return (
     <View style={styles.container}>
-      <Header navigation={navigation} name='Clean Sheet'/>
+      <Header navigation={navigation} name='Clean Sheet' animatedValue={100}/>
 
       <View style={styles.scrollContainer}>
 

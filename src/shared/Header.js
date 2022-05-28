@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { StyleSheet, Text, View, TouchableOpacity, BackHandler } from 'react-native';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import styled from 'styled-components/native'
 
 const Header = (props) => {
 
@@ -18,7 +17,7 @@ const Header = (props) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { height: 100}]}>
 
       <View style={[styles.headerText, {flex: 1}]}>
         { props.backVisible && 
@@ -41,7 +40,6 @@ const Header = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 100,
     backgroundColor: '#F6F6F6',
     justifyContent: 'flex-end',
     alignItems: 'center',

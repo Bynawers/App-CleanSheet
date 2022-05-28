@@ -1,37 +1,79 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View , ScrollView, TouchableOpacity} from 'react-native';
+import React, { useState, useEffect, useRef } from 'react'
+import { StyleSheet, Text, View , ScrollView, TouchableOpacity, Dimensions, Image, Animated } from 'react-native';
 import DataBase from '../database/firestore.js';
-import Header from '../shared/Header.js';
 import { AntDesign } from '@expo/vector-icons';
 
+import ReactNativeComponents from '../components/CodeExample/ReactNativeComponents.js';
+
 export default function CodeExample({navigation}) {
+
+  const scrollPosition = useRef(new Animated.Value(0)).current;
+
+  const minHeaderHeight = 0
+  const maxHeaderHeight = 100
+
+  const headerHeight = scrollPosition.interpolate({
+    inputRange: [0, 400],
+    outputRange: [maxHeaderHeight, minHeaderHeight],
+    extrapolate: 'clamp',
+  });
+
+  const [visible, setVisible] = useState(false);
+  const [visibleReact, setVisibleReact] = useState(false);
 
   const [onceUse, setOnceUse] = useState(false);
   const [data, setData] = useState([]);
 
-  const readData = async () => {
-    setData(await (DataBase.getCodeData('Code')));
-  }
-
   useEffect(() => {
-  }, [data]);
-
-  const firstCall = () => {
-    if (!onceUse){
-      setOnceUse(true);
-      readData();
+    const readData = async () => {
+      setData(await (DataBase.getCodeData('Code')))
+      this.console.log('DATA SET')
     }
-  }
-
-  firstCall()
+    const firstCall = () => {
+      if (!onceUse){
+        setOnceUse(true);
+        readData();
+      }
+    }
+    firstCall();
+  }, []);
 
   return (
-    <View style={styles.container}>
-      <Header name='Code Example'/>
-      <ScrollView style={styles.container}>
-        <CodeContainer name='Sorting' data={data} index={0} navigation={navigation}/>
-        <CodeContainer name='Tree' data={data} index={1} navigation={navigation}/>
-      </ScrollView>
+    <View style={ styles.container }>
+      <Animated.View style={[styles.header, { height: headerHeight }]}>
+        <Text style={{ fontSize: 20 }}>Code Example</Text> 
+      </Animated.View>
+
+      <Animated.ScrollView style={styles.container}
+      contentContainerStyle={{ paddingTop: 100, paddingBottom: 100 }}
+      showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={Animated.event(
+        [{nativeEvent: {contentOffset: {y: scrollPosition}}}],
+        {useNativeDriver: false},
+      )}>
+
+        <TouchableOpacity style={[styles.titleCode, {height: 70, backgroundColor: '#FCFCFC', shadowColor: '#5A5A5A',}]}
+        onPress={() => setVisible(!visible)}>
+          <Text style={{fontSize: 20}}>Algorithms</Text>
+        </TouchableOpacity>
+
+        {visible && data.map((item, index) => {
+          return(
+          <React.Fragment key={index}>
+            <CodeContainer name={item.name} data={data} index={index} navigation={navigation}/>
+          </React.Fragment>);
+        })}
+
+        
+        <TouchableOpacity style={[styles.titleCode, {height: 70, backgroundColor: '#FCFCFC', shadowColor: '#5A5A5A',}]}
+        onPress={() => {setVisibleReact(!visibleReact)}}>
+          <Text style={{fontSize: 20}}>React Native Components</Text>
+        </TouchableOpacity>
+
+        {visibleReact && <ReactNativeComponents/>}
+
+      </Animated.ScrollView>
     </View>
   );
 }
@@ -75,6 +117,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: '#F6F6F6',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 20,
   },
   titleCode: {
     height: 50,

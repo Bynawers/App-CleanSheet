@@ -46,7 +46,6 @@ async function getCodeData(request) {
     .then((response) => { 
       if(Object.entries(response).length){ 
         data.push({name: item.id, algo: response});
-        console.log(data)
       }
     })
   });
