@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 
 import { CleanSheetStackNavigator, CodeExampleStackNavigator, KnowledgeStackNavigator } from "./StackNavigation";
 
+import themeContext from '../../config/themeContext';
+
 import Web from '../views/Web.js';
 
-const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function MyTabs() {
+export default function MyTabs() {
+
+  const theme = useContext(themeContext)
 
   return (
     <Tab.Navigator
@@ -33,13 +34,12 @@ function MyTabs() {
             }
             return <Ionicons name={iconName} size={40} color={color} />;
         },
-        headerTintColor: '#F6F6F6',
         headerShown: false,
-        tabBarActiveTintColor: '#151514',
-        tabBarInactiveTintColor: '#151514',
+        tabBarActiveTintColor: theme.text,
+        tabBarInactiveTintColor: theme.text,
         tabBarShowLabel: true,
         tabBarStyle: { 
-          backgroundColor: '#F6F6F6',
+          backgroundColor: theme.surface,
           height: '11%',
           borderTopWidth: 0,
           position: 'absolute',
@@ -61,16 +61,6 @@ function MyTabs() {
         component={ KnowledgeStackNavigator }
       />
     </Tab.Navigator>
-  );
-}
-
-export default function Switch() {
-  return (
-      <Stack.Navigator
-      screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={ MyTabs } />
-        <Stack.Screen name="WebStack" component={ Web }/>
-      </Stack.Navigator>
   );
 }
 

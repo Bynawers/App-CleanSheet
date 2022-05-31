@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, View , TouchableOpacity, FlatList, Dimensions, Image, Button, BackHandler} from 'react-native';
 import Header from '../shared/Header.js';
 import { Ionicons } from '@expo/vector-icons';
+
+import themeContext from '../../config/themeContext';
 
 export default function Favorite({route, navigation }) {
 
   const dataLangage = require("../data/Langage.json");
 
   const { image, favorite } = route.params;
+
+  const theme = useContext(themeContext);
 
   const [getFavorite, setFavorite] = useState(favorite.current);
 
@@ -25,9 +29,9 @@ export default function Favorite({route, navigation }) {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <Header navigation={navigation} name='Favorite' backVisible={true}/>
-      <View style={styles.container}>
+      <View style={{ flex: 1, backgroundColor: theme.background }}>
         <FlatList
         data={dataLangage.Langage}
         numColumns={4}
@@ -79,10 +83,6 @@ const Langage = (props) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
   langageContainer: {
     alignItems: 'center',
     height: 100,

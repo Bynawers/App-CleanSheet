@@ -1,29 +1,31 @@
 import { StatusBar } from 'expo-status-bar';
-import { View, useColorScheme } from 'react-native';
-import { NavigationContainer, DarkTheme } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import TabNavigation from './src/containers/TabNavigation.js'
-import { ThemeProvider } from 'styled-components';
+import { EventRegister } from 'react-native-event-listeners';
+import themeContext from './config/themeContext.js';
+import theme from './config/theme.js';
 
 export default function App() {
 
-  const darkTheme = {
-    background: "#1A1A1A",
-    foreground: "#FAFAFA"
-  };
-  
-  const lightTheme = {
-    background: "#FAFAFA",
-    foreground: "#1A1A1A",
-  };
+  const [mode, setMode] = useState(false);
 
-  const scheme = useColorScheme();
+  useEffect(() => {
+    let eventListener = EventRegister.addEventListener("changeTheme", (data) => {
+      setMode(data);
+      console.log(data)
+    })
+    return () => {
+      EventRegister.removeEventListener(eventListener)
+    }
+  })
 
   return (
-    <ThemeProvider theme={scheme === 'dark' ? darkTheme : lightTheme} style={{ flex: 1 }}>
-      <NavigationContainer theme={DarkTheme}>
+    <themeContext.Provider value={mode === true ? theme.darkTheme : theme.lightTheme} style={{ flex: 1 }}>
+      <NavigationContainer>
         <TabNavigation/>
       </NavigationContainer>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <StatusBar style="auto"/>
+    </themeContext.Provider>
   );
 }

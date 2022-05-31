@@ -1,18 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View , ScrollView, TouchableOpacity, Image} from 'react-native';
+import React, { useContext } from 'react'
+import { StyleSheet, Text, View , ScrollView, TouchableOpacity, Image } from 'react-native';
 import Header from '../shared/Header.js';
 
-export default function Knowledge() {
+import themeContext from '../../config/themeContext';
+
+export default function Knowledge({navigation}) {
+
+  const theme = useContext(themeContext);
+
   return (
     <>
       <Header name='Knowledge'/>
-      <ScrollView style={styles.container}
-      contentContainerStyle={{ paddingBottom: 100}}>
+      <ScrollView style={[styles.container, { backgroundColor: theme.background }]}
+      contentContainerStyle={{ paddingTop: 100, paddingBottom: 100 }}>
         
-        <Element name='Base De Donnée' image={require('../../assets/view/DataBase.png')}/>
-        <Element name='Cybersécurité' image={require('../../assets/view/CyberSecurity.jpg')}/>
-        <Element name='Réseau' image={require('../../assets/view/Network.jpg')}/>
-        <Element name='Processing' image={require('../../assets/view/Computer.jpg')}/>
+        <Element name='Base De Donnée' image={require('../../assets/view/DataBase.png')} navigation={navigation} theme={theme}/>
+        <Element name='Cybersécurité' image={require('../../assets/view/CyberSecurity.jpg')} navigation={navigation} theme={theme}/>
+        <Element name='Réseau' image={require('../../assets/view/Network.jpg')} navigation={navigation}theme={theme}/>
+        <Element name='Processing' image={require('../../assets/view/Computer.jpg')} navigation={navigation} theme={theme}/>
       </ScrollView>
     </>
   );
@@ -22,11 +27,11 @@ const Element = (props) => {
   return(
 
       <TouchableOpacity style={{alignItems: 'center'}}
-      onPress={() => {}}>
-        <View style={styles.titleCode}>
-          <Text style={{fontSize: 17}}>{props.name}</Text>
+      onPress={() => { props.navigation.navigate('ComingSoonStack'); }}>
+        <View style={[styles.titleCode, { backgroundColor: props.theme.subSurface } ]}>
+          <Text style={{ fontSize: 17, color: props.theme.text  }}>{props.name}</Text>
         </View>
-        <View style={styles.whiteLine}/>
+        <View style={[styles.line, { backgroundColor: props.theme.background }]}/>
 
         <View style={[styles.titleCode, {height: 200, marginTop: 0, backgroundColor: '#FAFAFA' }]}>
           <Image
@@ -55,8 +60,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 3,
   },
-  whiteLine: {
-    backgroundColor: 'white',
+  line: {
     height: 1,
     width: '100%'
   }

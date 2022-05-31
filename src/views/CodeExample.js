@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { StyleSheet, Text, View , ScrollView, TouchableOpacity, Dimensions, Image, Animated } from 'react-native';
-import DataBase from '../database/firestore.js';
-import { AntDesign } from '@expo/vector-icons';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { StyleSheet, Text, View , TouchableOpacity, Animated } from 'react-native';
+import { EventRegister } from 'react-native-event-listeners';
+import { Feather } from '@expo/vector-icons';
+import LottieView from 'lottie-react-native';
+import * as Haptics from 'expo-haptics';
 
+import themeContext from '../../config/themeContext';
+
+import DataBase from '../database/firestore.js';
 import ReactNativeComponents from '../components/CodeExample/ReactNativeComponents.js';
+import CodeContainer from '../components/CodeExample/CodeContainer';
 
 export default function CodeExample({navigation}) {
 
@@ -18,11 +24,20 @@ export default function CodeExample({navigation}) {
     extrapolate: 'clamp',
   });
 
-  const [visible, setVisible] = useState(false);
+  const theme = useContext(themeContext);
+
+  const [visibleAlgo, setVisibleAlgo] = useState(false);
   const [visibleReact, setVisibleReact] = useState(false);
 
   const [onceUse, setOnceUse] = useState(false);
   const [data, setData] = useState([]);
+
+  const toogleVisibilityAlgo = () => {
+    setVisibleAlgo(!visibleAlgo);
+  }
+  const toogleVisibilityReact = () => {
+    setVisibleReact(!visibleReact);
+  }
 
   useEffect(() => {
     const readData = async () => {
@@ -39,12 +54,20 @@ export default function CodeExample({navigation}) {
   }, []);
 
   return (
-    <View style={ styles.container }>
-      <Animated.View style={[styles.header, { height: headerHeight }]}>
-        <Text style={{ fontSize: 20 }}>Code Example</Text> 
+    <View style={{flex: 1}}>
+      <Animated.View style={[styles.header, { height: headerHeight, backgroundColor: theme.surface}]}>
+        <View style={{ flex: 1 }}/>
+        <Text style={{ fontSize: 20, color: theme.text }}>Code Example</Text> 
+        <TouchableOpacity style={{ flex: 1, alignItems: 'flex-end', right: 25 }}
+          onPress={() => {
+            EventRegister.emit("changeTheme", theme.name === 'light' ? true : false);
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          }}>
+            <Feather name={theme.name === 'light' ? 'sun' : 'moon'} size={30} color={theme.name === 'light' ? 'black' : 'white'}/>
+        </TouchableOpacity>
       </Animated.View>
 
-      <Animated.ScrollView style={styles.container}
+      <Animated.ScrollView style={{flex: 1, backgroundColor: theme.background}}
       contentContainerStyle={{ paddingTop: 100, paddingBottom: 100 }}
       showsVerticalScrollIndicator={false}
       scrollEventThrottle={16}
@@ -53,63 +76,32 @@ export default function CodeExample({navigation}) {
         {useNativeDriver: false},
       )}>
 
-        <TouchableOpacity style={[styles.titleCode, {height: 70, backgroundColor: '#FCFCFC', shadowColor: '#5A5A5A',}]}
-        onPress={() => setVisible(!visible)}>
-          <Text style={{fontSize: 20}}>Algorithms</Text>
-        </TouchableOpacity>
-
-        {visible && data.map((item, index) => {
+        <CodeExampleComponent name='Algorithms' toogleVisibility={toogleVisibilityAlgo} theme={theme}/>
+        {visibleAlgo && data.map((item, index) => {
           return(
           <React.Fragment key={index}>
-            <CodeContainer name={item.name} data={data} index={index} navigation={navigation}/>
+            <CodeContainer name={item.name} data={data} index={index} navigation={navigation} theme={theme}/>
           </React.Fragment>);
         })}
 
-        
-        <TouchableOpacity style={[styles.titleCode, {height: 70, backgroundColor: '#FCFCFC', shadowColor: '#5A5A5A',}]}
-        onPress={() => {setVisibleReact(!visibleReact)}}>
-          <Text style={{fontSize: 20}}>React Native Components</Text>
-        </TouchableOpacity>
-
-        {visibleReact && <ReactNativeComponents/>}
+        <CodeExampleComponent name='React Native Components' toogleVisibility={toogleVisibilityReact} theme={theme}/>
+        {visibleReact && <ReactNativeComponents theme={theme}/>}
 
       </Animated.ScrollView>
     </View>
   );
 }
 
-const CodeContainer = (props) => {
-
-  const [visible, setVisible] = useState(false);
-
-  return (
-    <View>
-      <TouchableOpacity style={{alignItems: 'center'}}
-      onPress={() => {setVisible(!visible);}}>
-        <View style={styles.titleCode}>
-          <View style={{flex: 1}}/>
-            <View style={{flex: 1, alignItems: 'center'}}>
-              <Text>{props.name}</Text>
-            </View>
-          <View style={{flex: 1, alignItems: 'flex-end', right: 20}}>
-            <AntDesign name={visible ? 'down' : 'right'} color='black' size={20}/>
-          </View>
-        </View>
-      </TouchableOpacity>
-
-      {visible && props.data[props.index].algo.map((item, index) => {
-        return (
-          <React.Fragment key={index}>
-            <View style={styles.whiteLine}/>
-            <TouchableOpacity style={styles.algoCode}
-            onPress={() => { props.navigation.push('WebStack', {name: props.name, https: item.https}); }}>
-              <Text>- {item.name}</Text>
-            </TouchableOpacity>
-          </React.Fragment>
-        );
-      })
-      }
-    </View>
+const CodeExampleComponent = (props) => {
+  return(
+    <TouchableOpacity style={[styles.CodeExampleComponent, {
+      marginTop: 20,
+      backgroundColor: props.theme.surface, 
+      shadowColor: props.theme.name === "light" ? '#5A5A5A' : null
+    }]}
+    onPress={ props.toogleVisibility }>
+      <Text style={{fontSize: 20, color: props.theme.text}}>{props.name}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -125,12 +117,12 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
     backgroundColor: '#F6F6F6',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'flex-end',
+    flexDirection: 'row',
     paddingBottom: 20,
   },
-  titleCode: {
-    height: 50,
+  CodeExampleComponent: {
+    height: 70,
     backgroundColor: '#F6F6F6',
     width: '100%',
     marginTop: 10,
@@ -141,16 +133,6 @@ const styles = StyleSheet.create({
     shadowOffset: {width: -2, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 3,
-  },
-  algoCode: {
-    backgroundColor: '#F1F1F1',
-    height: 50,
-    shadowColor: '#171717',
-    shadowOffset: {width: -2, height: 4},
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    justifyContent: 'center',
-    paddingLeft: 50
   },
   whiteLine: {
     backgroundColor: 'white',

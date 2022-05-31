@@ -2,6 +2,7 @@ import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
+import ComingSoon from "../views/ComingSoon.js"
 import Web from '../views/Web.js';
 import Favorite from '../views/Favorite.js'
 import CleanSheet from '../views/CleanSheet.js';
@@ -29,6 +30,7 @@ const CodeExampleStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={screenOptionStyle}>
       <Stack.Screen name="CodeStack" component={CodeExample}/>
+      <Stack.Screen name="ComingSoonStack" component={ComingSoon}/>
     </Stack.Navigator>
   );
 }
@@ -37,6 +39,7 @@ const KnowledgeStackNavigator = () => {
   return (
     <Stack.Navigator screenOptions={screenOptionStyle}>
       <Stack.Screen name="KnowledgeStack" component={Knowledge}/>
+      <Stack.Screen name="ComingSoonStack" component={ComingSoon}/>
     </Stack.Navigator>
   );
 }

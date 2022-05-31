@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
 
-export default function ReactNativeComponents() {
+export default function ReactNativeComponents(props) {
 
   const data = require('../../data/ReactNativeComponents.json');
 
@@ -11,7 +11,7 @@ export default function ReactNativeComponents() {
       <FlatList
         data={data.components}
         renderItem={({ item }) => (
-          <Component name={item.name}/>
+          <Component name={item.name} theme={props.theme}/>
         )}
         keyExtractor={item => item.id}
         numColumns={3}
@@ -27,11 +27,11 @@ const Component = (props) => {
 
   return(
     <TouchableOpacity style={[styles.reactShadowComponent, { height: edgeSize, width: edgeSize}]}>
-      <View style={styles.reactComponent}>
+      <View style={[styles.reactComponent, { backgroundColor: props.theme.subSurface }]}>
         <Image
-        style={{ width: '80%', flex: .8, margin : 5, tintColor: 'white'}}
+        style={{ width: '80%', flex: .8, margin : 5, tintColor: props.theme.imageTint}}
         source={require('../../../assets/view/whiteReact.png')}/>
-        <Text style={{position: 'absolute', flexWrap: 'wrap'}}>{props.name}</Text>
+        <Text style={{position: 'absolute', color: props.theme.text}}>{props.name}</Text>
       </View>
     </TouchableOpacity>
   );

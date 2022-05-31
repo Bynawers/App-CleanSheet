@@ -1,15 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { StyleSheet, Text, View , Button, TouchableOpacity, Modal, TouchableWithoutFeedback, Image, FlatList, Dimensions } from 'react-native';
-import { Picker }  from '@react-native-picker/picker'
 import * as Haptics from 'expo-haptics';
-import Slider from '@react-native-community/slider';
+
+import themeContext from '../../config/themeContext';
 
 import Header from '../shared/Header.js';
 import { Ionicons, FontAwesome } from '@expo/vector-icons';
+import FilterOverlay from '../components/CleanSheet/FilterOverlay.js';
 
 function CleanSheet({navigation}) {
 
   const dataLangage = require("../data/Langage.json");
+
+  const theme = useContext(themeContext);
 
   const image = {
     langage: {
@@ -56,20 +59,20 @@ function CleanSheet({navigation}) {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
-      <Header navigation={navigation} name='Clean Sheet' animatedValue={100}/>
+    <View style={{flex: 1}}>
+      <Header navigation={navigation} name='Clean Sheet'/>
 
-      <View style={styles.scrollContainer}>
+      <View style={[styles.scrollContainer, {backgroundColor: theme.background}]}>
 
         <View style={styles.lineContainer}>
           <View style={{flexDirection: 'row'}}>
             <View style={{flex:1}}/>
             <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-              <Text>Langage</Text>
+              <Text style={{color: theme.text}}>Langage</Text>
             </View>
             <TouchableOpacity style={{flex:1, justifyContent: 'center', alignItems: 'center', flexDirection: 'row'}}
             onPress={() => {setVisible(!visible); Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);}}>
-              <Ionicons name='filter-outline' color='black' size={30}/>
+              <Ionicons name='filter-outline' color={theme.text} size={30}/>
               <View style={{right: 10, bottom: 7}}>
                 <FontAwesome name='circle' color='#32ade6' size={10} 
                 style={{opacity: (selectedParadigme === 'none' && selectedValue === 'none' && selectedYears === -1 && favorite.current.length === 0) ? 0 : 1}}/>
@@ -77,7 +80,7 @@ function CleanSheet({navigation}) {
               
             </TouchableOpacity>
           </View>
-          <View style={styles.line}/>
+          <View style={[styles.line, {backgroundColor: theme.text}]}/>
         </View>
 
         <View style={{flexDirection: 'row', marginTop: 10}}>
@@ -112,132 +115,6 @@ function CleanSheet({navigation}) {
   );
 }
 
-const FilterOverlay = (props) => {
-
-  const [selectedType, setSelectedType] = useState("Type");
-
-  const [selectedParadigmeTemp, setSelectedParadigmeTemp] = useState("none");
-  const [selectedValueTemp, setSelectedValueTemp] = useState("none");
-  const [selectedYearsTemp, setSelectedYearsTemp] = useState(-1);
-
-  const toggleSetFilter = () => {
-  
-    props.setSelectedYears(selectedYearsTemp)
-    props.setSelectedParadigme(selectedParadigmeTemp)
-    props.setSelectedValue(selectedValueTemp)
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-  }
-
-  return (
-    <Modal
-    animationType="slide"
-    transparent={true}
-    visible={props.visible}
-    onRequestClose={() => {props.setVisible(!props.visible)} }>
-
-      <TouchableWithoutFeedback onPress={() => props.setVisible(!props.visible)}>
-        <View style={styles.filterOverlay}/>
-      </TouchableWithoutFeedback>
-
-      <View style={styles.filterContent}>
-        <View style={styles.filterTopContent}>
-          <TouchableOpacity style={{left: '15%', flex: 1}}
-            onPress={() => props.setVisible(!props.visible)}>
-              <Ionicons name='close-outline' color='black' size={40}/>
-            </TouchableOpacity>
-          <Text style={styles.text}>Filtrer</Text>
-          <View style={{ flex: 1, alignItems: 'flex-end'}}>
-            <View style={{ flex: 1, justifyContent: 'center', marginRight: '15%'}}>
-              <Button onPress={() => toggleSetFilter()} title="Apply"/>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.separation}/>
-
-        <View style={{alignSelf: 'center', flexDirection: 'row', marginTop: 10}}>
-          <SelectType name='Type' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedValue !== 'none')}/>
-          <SelectType name='Paradigme' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedParadigme !== 'none')}/>
-          <SelectType name='Years' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.selectedYears !== -1)} />
-          <SelectType name='Favorite' selectedType={selectedType} setSelectedType={setSelectedType} hasValue={(props.favorite.current.length !== 0)} />
-        </View>
-
-        <View style={{width: '100%',top: '0%'}}>
-          <View style={{width: '100%'}}>
-          {selectedType === 'Type' &&
-          <Picker
-          selectedValue={selectedValueTemp}
-          style={{ height: 0, width: '100%' }}
-          onValueChange={(itemValue, itemIndex) => setSelectedValueTemp(itemValue)}>
-            <Picker.Item label="None" value="none" />
-            <Picker.Item label="BackHand" value="BackHand" />
-            <Picker.Item label="FrontHand" value="FrontHand"/>
-            <Picker.Item label="FullStack" value="FullStack" />
-          </Picker>}
-
-          {selectedType === 'Paradigme' &&
-          <Picker
-          selectedValue={selectedParadigmeTemp}
-          style={{ height: 0, width: '100%' }}
-          onValueChange={(itemValue, itemIndex) => setSelectedParadigmeTemp(itemValue)}>
-            <Picker.Item label="None" value="none" />
-            <Picker.Item label="Orienté Objet" value="objet" />
-            <Picker.Item label="Structurée" value="structuree"/>
-            <Picker.Item label="Procédurale" value="procedural"/>
-            <Picker.Item label="Fonctionnel" value="fonctionnel"/>
-            <Picker.Item label="Impératif" value="imperatif"/>
-            <Picker.Item label="Declarative" value="declarative"/>
-          </Picker>}
-
-          {selectedType === 'Years' &&
-          <View style={{alignSelf: 'center', alignItems: 'center', marginTop: '10%'}}>
-            <Text>{selectedYearsTemp === -1 ? "No value" : selectedYearsTemp}</Text>
-            <Slider
-            style={{width: 200, height: 40}}
-            minimumValue={1990}
-            maximumValue={2022}
-            value={props.selectedYears}
-            onValueChange={(value) => setSelectedYearsTemp(parseInt(value))}
-            minimumTrackTintColor="#242426"
-            maximumTrackTintColor="white"
-            />
-            <Button
-            onPress={() => setSelectedYearsTemp(-1)}
-            title="Reset"
-            />
-          </View>}
-
-          {selectedType === 'Favorite' &&
-            <TouchableOpacity style={styles.buttonAdd}
-            onPress={() => {
-              props.navigation.push('FavoriteStack', {image: props.image, favorite: props.favorite}); 
-              props.setVisible(false);
-              props.leaveOpenFilter.current = true;
-            }}>
-              <Ionicons name='md-add-outline' color='black' size={35}/>
-            </TouchableOpacity>}
-
-          </View>
-
-        </View>
-
-      </View>
-
-    </Modal>
-  );
-}
-
-const SelectType = (props) => {
-
-  return(
-    <TouchableOpacity style={[styles.filterType, 
-      {backgroundColor: props.hasValue && props.selectedType === props.name ? '#1e71f5' : props.hasValue ? '#81B1FF' : props.selectedType === props.name ? '#242426' : '#C6C6C6'}]}
-    onPress={() => props.setSelectedType(props.name)}>
-      <Text style={styles.whiteText}>{props.name}</Text>
-    </TouchableOpacity>
-  );
-}
-
 const Langage = (props) => {
 
   let edgeSize = Dimensions.get('window').width/props.numberOfColumn;
@@ -257,6 +134,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flex: 1,
     backgroundColor: 'white',
+    paddingTop: 100, 
   },
   lineContainer: {
     alignItems: 'center',
